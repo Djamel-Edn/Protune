@@ -212,15 +212,29 @@ The value of the n8n prototype is **the prompts and the pipeline design**, not t
 | `Offer analyser` (Gemini) | `services/gemini.py::analyse_offer()` |
 | `rédaction LM` (Gemini) | `services/gemini.py::write_letter()` |
 | `CV writer` (Gemini) | `services/gemini.py::adapt_cv()` |
-| `Code parse *` (stripping ```` ```json ````) | `services/gemini.py::_parse_json()` — shared helper |
+| `Code parse *` (stripping ```` ```json ````) | no longer needed — see below |
 | `Code html` | React rendering on the web side |
 
 **The structural change:** in n8n, the candidate's profile and CV are **hard-coded inside the prompts**. Here they are **inputs**. Each prompt becomes a template in `api/app/prompts/` with variables.
 
+Two improvements on the prototype:
+
+**JSON is now guaranteed, not salvaged.** The prototype asked for JSON in prose and stripped
+```` ```json ```` fences off the answer, which broke whenever the model phrased itself
+differently. Requests now pin `responseMimeType: application/json` and a `responseSchema`,
+so the response parses by construction. The fence-stripping survives only as a fallback,
+and a test pins it.
+
+**The output language is decided once.** Both downstream prompts originally said "write in
+the language of the posting". Against a French posting that produced a French letter next
+to an English CV summary. The analysis now returns a `language` field which is interpolated
+into the letter and CV prompts, so the decision is made once instead of re-inferred twice.
+
 Known pitfalls, already paid for once:
-- Gemini wraps its JSON in ```` ```json ```` fences → strip before `json.loads`
-- 15 RPM rate limit → exponential backoff
-- the three calls are sequential (the analysis feeds both the letter and the CV) → this is what accounts for the 20–30 s
+- 15 RPM rate limit → exponential backoff over 3 attempts, with 429/500/503 retried and
+  everything else failing immediately
+- the three calls are sequential (the analysis feeds both the letter and the CV) → this is
+  what accounts for the 16–25 s measured end to end
 
 ---
 
@@ -320,7 +334,7 @@ CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next bu
 |---|---|---|
 | ~~1~~ | ~~Skeleton + `/health` + end-to-end deployment~~ ✅ | [protune-eight.vercel.app](https://protune-eight.vercel.app) · [protuneapi.vercel.app](https://protuneapi.vercel.app/docs) |
 | ~~2~~ | ~~`cv/parse` — PDF text extraction~~ ✅ | 20 tests, including scans, corrupt files and oversized uploads |
-| 3 | `generate` — the three Gemini calls ported from n8n | A complete JSON from the command line |
+| ~~3~~ | ~~the three Gemini calls ported from n8n~~ ✅ | Full pipeline verified against the live API in 16.4 s |
 | 4 | SSE + full frontend flow | The product works locally |
 | 5 | PDF export | The deliverable is downloadable |
 | 6 | Landing + pre-generated example + rate limiting | **The public demo is presentable** |
