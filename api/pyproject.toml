@@ -8,7 +8,10 @@ requires-python = ">=3.12"
 # Vercel installs from this list; a requirements.txt alongside it would be ignored.
 dependencies = [
     "fastapi==0.115.6",
-    "uvicorn[standard]==0.34.0",
+    # Plain uvicorn, not [standard]: the serverless runtime imports the ASGI app
+    # directly and never starts a server, so uvloop/httptools/watchfiles would be
+    # native-wheel bloat in the function bundle. Only local runs use uvicorn.
+    "uvicorn==0.34.0",
     "pydantic==2.10.4",
     "pydantic-settings==2.7.0",
     "python-multipart==0.0.20",
