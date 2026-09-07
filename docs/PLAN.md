@@ -117,7 +117,7 @@ Base path: `/api/v1`
 |---|---|---|---|
 | `GET` | `/health` | — | `{status, version}` |
 | `GET` | `/demo/quota` | — | `{remaining, limit, resets_at}` |
-| `POST` | `/cv/parse` | `multipart` (PDF ≤ 4 MB) | `{raw_text, parsed: {headline, summary, experience[], projects[], skills[], education[]}}` |
+| `POST` | `/cv/parse` | `multipart` (PDF ≤ 4 MB) | `{raw_text, page_count, character_count, truncated}` |
 | `POST` | `/generate` | `{cv, offer_url?, offer_text?}` | **SSE** |
 
 ### SSE events emitted by `/generate`
@@ -130,7 +130,15 @@ event: done     data: {"duration_ms":24310,"model":"…"}
 event: error    data: {"code":"RATE_LIMITED","message":"…"}
 ```
 
-Error codes: `RATE_LIMITED`, `QUOTA_EXCEEDED` (Gemini), `SCRAPE_FAILED`, `PARSE_FAILED`, `INVALID_PDF`.
+Error codes: `RATE_LIMITED`, `QUOTA_EXCEEDED` (Gemini), `SCRAPE_FAILED`, `PARSE_FAILED`,
+`INVALID_PDF`, `FILE_TOO_LARGE`. Every error response is `{code, message}`; the frontend
+branches on `code` and never on the message.
+
+> **Why `/cv/parse` returns text rather than a structured CV.** Extraction is deterministic
+> and exhaustively testable; structuring a CV is a language-model job. Keeping them apart
+> makes uploads instant, spends no Gemini quota on a file the user may not even submit, and
+> lets the parser be tested without an API key. The structured CV is produced inside
+> `/generate`, where it is actually needed.
 
 ---
 
@@ -311,7 +319,7 @@ CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next bu
 | # | Deliverable | Visible outcome |
 |---|---|---|
 | ~~1~~ | ~~Skeleton + `/health` + end-to-end deployment~~ ✅ | [protune-eight.vercel.app](https://protune-eight.vercel.app) · [protuneapi.vercel.app](https://protuneapi.vercel.app/docs) |
-| 2 | `cv/parse` — PDF → structured JSON | Unit test against a real CV |
+| ~~2~~ | ~~`cv/parse` — PDF text extraction~~ ✅ | 20 tests, including scans, corrupt files and oversized uploads |
 | 3 | `generate` — the three Gemini calls ported from n8n | A complete JSON from the command line |
 | 4 | SSE + full frontend flow | The product works locally |
 | 5 | PDF export | The deliverable is downloadable |
