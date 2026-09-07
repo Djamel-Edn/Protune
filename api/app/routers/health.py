@@ -1,15 +1,11 @@
 """Liveness endpoint, also used as the deployment smoke test."""
 
-from typing import Annotated
+from fastapi import APIRouter
 
-from fastapi import APIRouter, Depends
-
-from app.config import Settings, get_settings
+from app.config import SettingsDep
 from app.schemas.health import HealthResponse
 
 router = APIRouter(tags=["health"])
-
-SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 
 @router.get("/health", response_model=HealthResponse)

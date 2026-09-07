@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ApiStatus } from "@/components/api-status";
 import { brand } from "@/lib/brand";
 
@@ -28,6 +30,12 @@ export default function Home() {
           <p className="max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
             {brand.tagline}
           </p>
+          <Link
+            href="/app"
+            className="w-fit rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+          >
+            Try it &rarr;
+          </Link>
         </header>
 
         <ol className="grid gap-px overflow-hidden rounded-xl border border-black/10 bg-black/10 sm:grid-cols-3 dark:border-white/15 dark:bg-white/15">
@@ -46,9 +54,9 @@ export default function Home() {
 
         <footer className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-500 dark:text-zinc-500">
           <span className="rounded-md bg-amber-400/15 px-2 py-1 text-amber-700 dark:text-amber-400">
-            Milestone 1 · skeleton
+            Milestone 4 · working generator
           </span>
-          <span>The generator ships at milestone 6.</span>
+          <span>PDF export and the public demo come next.</span>
           <a
             href={brand.repository}
             className="font-medium text-zinc-900 underline underline-offset-4 dark:text-zinc-200"

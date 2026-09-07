@@ -98,7 +98,7 @@ The app runs on `http://localhost:3000`, the API on `http://localhost:8000` (aut
 - [x] **1** — Skeleton, `/health`, end-to-end deployment
 - [x] **2** — CV parsing (PDF text extraction, with actionable errors)
 - [x] **3** — Gemini pipeline: analyse → letter → CV
-- [ ] **4** — SSE streaming and full frontend flow
+- [x] **4** — SSE streaming and full frontend flow
 - [ ] **5** — PDF export
 - [ ] **6** — Landing page and rate-limited public demo
 - [ ] **7** — Polish, final README, demo video

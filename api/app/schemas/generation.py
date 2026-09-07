@@ -1,6 +1,23 @@
 """Models for the generation pipeline, and the JSON schemas Gemini must answer with."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+
+
+class GenerateRequest(BaseModel):
+    """One generation: a CV, and a posting given either by URL or as text."""
+
+    cv_text: str = Field(min_length=50, description="Text of the CV, from /cv/parse.")
+    offer_url: str = ""
+    offer_text: str = ""
+    reference_letter: str = Field(
+        default="", description="An earlier letter, used only as a style reference."
+    )
+
+    @model_validator(mode="after")
+    def _needs_a_posting(self) -> "GenerateRequest":
+        if not self.offer_url.strip() and not self.offer_text.strip():
+            raise ValueError("Provide either offer_url or offer_text.")
+        return self
 
 
 class OfferAnalysis(BaseModel):

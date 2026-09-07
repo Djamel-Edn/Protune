@@ -8,8 +8,12 @@ $analysis
 
 Rewrite the parts of the CV that should change. Requirements:
 
-- `headline`: one line, the role the candidate is positioning themselves for. Match the
-  posting's job title where the CV honestly supports it.
+- `headline`: the job title as it would sit at the top of a CV. Four words at most, and
+  never more than sixty characters. Take the role from the posting, but strip everything
+  that belongs to an advert rather than a CV: "H/F", "(M/F)", contract wording, location,
+  seniority brackets and any phrase describing the required profile. "Alternance Data
+  Engineer H/F - Etudiant ingenieur specialisation data" is wrong; "Data Engineer" or
+  "Alternant Data Engineer" is right.
 - `summary`: two or three sentences, foregrounding the experience this posting cares about.
 - `projects`: the candidate's existing projects, reordered so the most relevant to this
   posting comes first, each description rewritten to lead with what matters here. Keep every

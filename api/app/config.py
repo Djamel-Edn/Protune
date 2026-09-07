@@ -1,8 +1,9 @@
 """Application settings, loaded from the environment."""
 
 from functools import lru_cache
-from typing import Any
+from typing import Annotated, Any
 
+from fastapi import Depends
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -47,3 +48,7 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+# Annotated rather than a default argument: a call in a default trips ruff B008.
+SettingsDep = Annotated[Settings, Depends(get_settings)]

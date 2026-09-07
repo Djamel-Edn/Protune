@@ -117,6 +117,11 @@ Base path: `/api/v1`
 |---|---|---|---|
 | `GET` | `/health` | — | `{status, version}` |
 | `GET` | `/demo/quota` | — | `{remaining, limit, resets_at}` |
+
+> `/generate` is a POST, so browsers cannot read it with `EventSource`, which is GET-only.
+> The frontend reads the response body stream directly. A failure after the first byte
+> cannot change the status code, so it travels as an `error` event — everything already
+> streamed stays on screen.
 | `POST` | `/cv/parse` | `multipart` (PDF ≤ 4 MB) | `{raw_text, page_count, character_count, truncated}` |
 | `POST` | `/generate` | `{cv, offer_url?, offer_text?}` | **SSE** |
 
@@ -335,7 +340,7 @@ CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next bu
 | ~~1~~ | ~~Skeleton + `/health` + end-to-end deployment~~ ✅ | [protune-eight.vercel.app](https://protune-eight.vercel.app) · [protuneapi.vercel.app](https://protuneapi.vercel.app/docs) |
 | ~~2~~ | ~~`cv/parse` — PDF text extraction~~ ✅ | 20 tests, including scans, corrupt files and oversized uploads |
 | ~~3~~ | ~~the three Gemini calls ported from n8n~~ ✅ | Full pipeline verified against the live API in 16.4 s |
-| 4 | SSE + full frontend flow | The product works locally |
+| ~~4~~ | ~~SSE + full frontend flow~~ ✅ | Driven end to end in a browser: 19.3 s, four stages streamed |
 | 5 | PDF export | The deliverable is downloadable |
 | 6 | Landing + pre-generated example + rate limiting | **The public demo is presentable** |
 | 7 | README, demo video, polish | Portfolio-ready |
