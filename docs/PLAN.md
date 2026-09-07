@@ -238,6 +238,38 @@ Environment variables to set in the dashboard:
 | api | `GEMINI_API_KEY` | from Google AI Studio |
 | api | `CORS_ORIGINS` | the deployed web URL |
 
+### Deployment gotchas
+
+Three platform behaviours cost time on the first deploy. All three are configuration,
+not code.
+
+**1. Root Directory (monorepo).** Left at the repository root, Vercel finds no
+application, builds nothing, and every route returns `404 NOT_FOUND`. Set it per project:
+`web` for the frontend, `api` for the backend.
+
+**2. Vercel Authentication blocks public access.** New projects ship with Deployment
+Protection on. Its *Standard Protection* mode is described as protecting everything
+"except production **Custom Domains**" — a `.vercel.app` address is not a custom domain,
+so it stays behind a Vercel login wall. A visitor without an account is redirected to
+`vercel.com/sso-api`.
+
+On the free plan the only options are to turn *Require Log In* off entirely, or to attach
+a real custom domain. For a public portfolio demo, the toggle must be **off**.
+
+Diagnose it without a browser:
+
+```bash
+curl -sD - -o /dev/null https://<app>.vercel.app/ | head -3
+# 302 + Location: vercel.com/sso-api  -> protected
+# 404 + X-Vercel-Error: NOT_FOUND     -> no deployment attached to that domain
+# 200                                 -> live
+```
+
+**3. A successful build is not a production deployment.** A production domain that returns
+`404 NOT_FOUND` while builds succeed means no deployment was ever promoted to production.
+Check *Settings → Git → Production Branch* is `main`, or promote a deployment manually from
+the Deployments tab.
+
 ### Why Vercel rather than a container host
 
 | Option | Verdict |
