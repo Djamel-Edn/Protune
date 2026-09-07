@@ -76,7 +76,7 @@ You paste a posting (URL or text), supply your CV once, and get back:
 
 | Layer | Choice | Why |
 |---|---|---|
-| Frontend | **Next.js 15** (App Router, TypeScript, Tailwind) | Free, instant Vercel deploys; no cold start on the page a recruiter lands on |
+| Frontend | **Next.js 16** (App Router, TypeScript, Tailwind 4) | Free, instant Vercel deploys; no cold start on the page a recruiter lands on |
 | Backend | **FastAPI** (Python 3.12) | The standard way to serve AI in Python; matches the AI & Big Data profile |
 | LLM | **Gemini** `gemini-flash-lite-latest` | Free tier at 15 RPM / 1000 RPD; prompts already validated in the n8n prototype |
 | Posting scraper | **r.jina.ai** | Free, no API key, handles JS-rendered pages; already proven in n8n |
