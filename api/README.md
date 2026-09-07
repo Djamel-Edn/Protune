@@ -1,1 +1,1 @@
-# API — FastAPI (jalon 1)
+# API — FastAPI backend (milestone 1)

@@ -24,13 +24,13 @@ venv/
 .mypy_cache/
 *.egg-info/
 
-# --- OS / éditeurs ---
+# --- OS / editors ---
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
 
-# --- Fichiers utilisateurs (uploads locaux) ---
+# --- User uploads (local runs) ---
 /api/uploads/
 /tmp/

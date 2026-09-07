@@ -1,1 +1,1 @@
-# Web — Next.js (jalon 1)
+# Web — Next.js frontend (milestone 1)

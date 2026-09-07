@@ -2,79 +2,79 @@
 
 # Protune
 
-**Colle une offre d'emploi. Récupère ton CV adapté et ta lettre de motivation.**
+**Paste a job posting. Get your CV retargeted and your cover letter written.**
 
-Analyse d'offre, réécriture de CV et rédaction de lettre par IA — sans inscription.
+AI-powered job analysis, CV rewriting and cover letter drafting — no sign-up required.
 
 `Next.js` · `FastAPI` · `Gemini` · `Supabase`
 
-🚧 **En construction** — voir la [roadmap](#roadmap). Démo publique au jalon 6.
+🚧 **Under construction** — see the [roadmap](#roadmap). Public demo ships at milestone 6.
 
 </div>
 
 ---
 
-## Le problème
+## The problem
 
-Adapter son CV à chaque offre, c'est ce qui fait la différence sur un ATS — et c'est exactement ce que personne ne fait, parce que ça prend 40 minutes par candidature.
+Tailoring your CV to each posting is what gets you past an ATS — and it's exactly what nobody does, because it takes 40 minutes per application.
 
-Protune ramène ça à 30 secondes : une offre en entrée, un CV reciblé et une lettre personnalisée en sortie.
+Protune brings that down to 30 seconds: a job posting in, a retargeted CV and a personalised cover letter out.
 
-## Comment ça marche
+## How it works
 
 ```
-Offre (URL ou texte)          CV (PDF)
-        │                        │
-        └────────┬───────────────┘
-                 ▼
-        ┌────────────────────┐
-        │  Analyse de l'offre │  poste, entreprise, compétences clés, mots-clés ATS
-        └────────┬───────────┘
-                 ▼
-        ┌────────────────────┐
-        │  Lettre de motiv.  │  rédigée dans ton style, ancrée sur l'entreprise
-        └────────┬───────────┘
-                 ▼
-        ┌────────────────────┐
-        │  CV adapté         │  titre, accroche et projets reciblés
-        └────────┬───────────┘
-                 ▼
-              Export PDF
+Job posting (URL or text)        CV (PDF)
+          │                         │
+          └───────────┬─────────────┘
+                      ▼
+          ┌───────────────────────┐
+          │  Posting analysis     │  role, company, key skills, ATS keywords
+          └───────────┬───────────┘
+                      ▼
+          ┌───────────────────────┐
+          │  Cover letter         │  written in your voice, grounded in the company
+          └───────────┬───────────┘
+                      ▼
+          ┌───────────────────────┐
+          │  Adapted CV           │  headline, summary and projects retargeted
+          └───────────┬───────────┘
+                      ▼
+                  PDF export
 ```
 
 ## Architecture
 
-Le produit sépare deux chemins, volontairement :
+The system deliberately separates two paths:
 
-| | |
+| Path | Runs on |
 |---|---|
-| **Chemin produit** — l'utilisateur attend le résultat à l'écran | Next.js + FastAPI |
-| **Chemin ops** — déclenché par le temps ou un webhook, personne n'attend | n8n |
+| **Product path** — a user is waiting for the result on screen | Next.js + FastAPI |
+| **Ops path** — triggered by a schedule or a webhook, nobody is waiting | n8n |
 
-Les digests d'offres, les relances de candidature et les notifications restent dans n8n. Le chemin critique est du code : testable, versionnable, multi-utilisateurs.
+Job digests, application follow-ups and internal notifications stay in n8n. The critical path is code: testable, reviewable in a diff, and multi-tenant.
 
-> **Ce projet a d'abord été prototypé entièrement dans n8n.** Le pipeline (scraping → analyse → lettre → CV) y a été validé en quelques jours, prompts compris. Cette version en est le portage : les prompts sont repris tels quels, mais le profil du candidat — codé en dur dans le prototype — devient une entrée, ce qui rend le produit multi-utilisateurs.
+> **This project was first prototyped entirely in n8n.** The pipeline — scrape → analyse → letter → CV — was validated there in a few days, prompts included. This repository is the port: the prompts carry over as-is, but the candidate profile, hard-coded in the prototype, becomes an *input*. That single change is what turns a personal automation into a product.
 
 ## Stack
 
-| Couche | Choix |
+| Layer | Choice |
 |---|---|
-| Front | Next.js 15 (App Router, TypeScript, Tailwind) — Vercel |
+| Frontend | Next.js 15 (App Router, TypeScript, Tailwind) — Vercel |
 | API | FastAPI, Python 3.12 — Fly.io (Docker) |
 | LLM | Google Gemini (`gemini-flash-lite-latest`) |
-| Données | Supabase (Postgres + Storage) |
+| Data | Supabase (Postgres + Storage) |
 | Quotas | Upstash Redis |
 
-Détail des choix et des arbitrages : [`docs/PLAN.md`](docs/PLAN.md).
+Design decisions and trade-offs are documented in [`docs/PLAN.md`](docs/PLAN.md).
 
-## Développement local
+## Local development
 
-**Prérequis :** Node 20+, Python 3.12, une clé [Google AI Studio](https://aistudio.google.com/apikey) (gratuite).
+**Requirements:** Node 20+, Python 3.12, and a free [Google AI Studio](https://aistudio.google.com/apikey) API key.
 
 ```bash
 git clone https://github.com/Djamel-Edn/Protune.git
 cd Protune
-cp .env.example .env   # puis remplir GEMINI_API_KEY
+cp .env.example .env   # then fill in GEMINI_API_KEY
 ```
 
 ```bash
@@ -89,23 +89,23 @@ uvicorn app.main:app --reload
 cd web && npm install && npm run dev
 ```
 
-L'app tourne sur `http://localhost:3000`, l'API sur `http://localhost:8000` (docs auto : `/docs`).
+The app runs on `http://localhost:3000`, the API on `http://localhost:8000` (auto-generated docs at `/docs`).
 
 ## Roadmap
 
-- [ ] **1** — Squelette + `/health` + déploiement de bout en bout
-- [ ] **2** — Parsing de CV (PDF → JSON structuré)
-- [ ] **3** — Pipeline Gemini : analyse → lettre → CV
-- [ ] **4** — Streaming SSE + parcours front complet
-- [ ] **5** — Export PDF
-- [ ] **6** — Landing + démo publique rate-limitée
-- [ ] **7** — Polish, README final, capture vidéo
-- [ ] *Plus tard* — comptes, tracker de candidatures, recherche d'offres avec scoring
+- [ ] **1** — Skeleton, `/health`, end-to-end deployment
+- [ ] **2** — CV parsing (PDF → structured JSON)
+- [ ] **3** — Gemini pipeline: analyse → letter → CV
+- [ ] **4** — SSE streaming and full frontend flow
+- [ ] **5** — PDF export
+- [ ] **6** — Landing page and rate-limited public demo
+- [ ] **7** — Polish, final README, demo video
+- [ ] *Later* — accounts, application tracker, job search with AI scoring
 
-## Vie privée
+## Privacy
 
-En mode démo, **le contenu des CV n'est pas conservé** : seules les métadonnées de génération (durée, modèle, horodatage) sont enregistrées. Les adresses IP ne sont jamais stockées en clair, uniquement hachées, pour appliquer les quotas.
+In demo mode, **CV contents are not retained** — only generation metadata (duration, model, timestamp) is stored. IP addresses are never stored in clear text, only hashed, and solely to enforce quotas.
 
 ## Licence
 
-MIT — voir [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
