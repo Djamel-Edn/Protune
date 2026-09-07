@@ -271,7 +271,14 @@ static `public/` directory — the Next.js adapter never runs, so every route re
 `404 NOT_FOUND` while `/window.svg` and the other files in `public/` return `200`. That
 asymmetry is the diagnostic: if assets serve but routes do not, the preset is wrong.
 
-**4. Vercel installs Python dependencies from `pyproject.toml`, not `requirements.txt`.**
+**4. An environment variable saved with a blank value is not the same as an unset one.**
+A missing variable falls back to its default; a variable present with an empty string
+overrides that default and is then parsed against the declared type. A blank
+`DEMO_DAILY_LIMIT` therefore failed int parsing at import time and returned 500 on every
+route. `Settings` now drops blank values before validation, and `tests/test_config.py`
+pins that behaviour.
+
+**5. Vercel installs Python dependencies from `pyproject.toml`, not `requirements.txt`.**
 When a `pyproject.toml` with a `[project]` table is present, it becomes the dependency
 source. A `[project]` table without a `dependencies` list therefore installs nothing, and
 the function crashes at import with `FUNCTION_INVOCATION_FAILED`. Dependencies live in
