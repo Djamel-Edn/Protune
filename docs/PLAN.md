@@ -83,7 +83,7 @@ You paste a posting (URL or text), supply your CV once, and get back:
 | PDF parsing | **pypdf** (with a `pdfplumber` fallback) | Sufficient for text-based CVs |
 | Database | **Supabase** (Postgres + Storage) | Already provisioned for the n8n project; Auth ready for phase 2 |
 | Demo quotas | **Upstash Redis** | Per-IP counters over a REST API — no persistent connection to keep alive |
-| PDF export | **@react-pdf/renderer** (client-side) | No headless browser to host; deterministic output |
+| PDF export | **@react-pdf/renderer** (client-side, imported on click) | No headless browser to host; deterministic output. Its ~1 MB is dynamically imported so a visitor who never downloads never pays for it |
 | Hosting | **Vercel** for both web and API | Free Hobby plan, no credit card, no cold start. See §9 |
 
 > ⚠️ **Python 3.12, not 3.14.** The machine defaults to 3.14, but parts of the PDF/AI ecosystem still lag behind it. The virtualenv is created explicitly with `py -3.12`.
@@ -341,7 +341,7 @@ CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next bu
 | ~~2~~ | ~~`cv/parse` — PDF text extraction~~ ✅ | 20 tests, including scans, corrupt files and oversized uploads |
 | ~~3~~ | ~~the three Gemini calls ported from n8n~~ ✅ | Full pipeline verified against the live API in 16.4 s |
 | ~~4~~ | ~~SSE + full frontend flow~~ ✅ | Driven end to end in a browser: 19.3 s, four stages streamed |
-| 5 | PDF export | The deliverable is downloadable |
+| ~~5~~ | ~~PDF export~~ ✅ | Verified by inflating a generated PDF: accents intact, 1902 characters |
 | 6 | Landing + pre-generated example + rate limiting | **The public demo is presentable** |
 | 7 | README, demo video, polish | Portfolio-ready |
 

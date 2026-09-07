@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { AdaptedCv, CoverLetter, OfferAnalysis } from "@/lib/api";
+import { downloadCv, downloadLetter } from "@/lib/download-pdf";
 
 type Tab = "letter" | "cv";
 
@@ -43,12 +44,40 @@ export function AnalysisSummary({ analysis }: { analysis: OfferAnalysis }) {
   );
 }
 
+function DownloadButton({ onClick }: { onClick: () => Promise<void> }) {
+  const [state, setState] = useState<"idle" | "working" | "failed">("idle");
+
+  async function run() {
+    setState("working");
+    try {
+      await onClick();
+      setState("idle");
+    } catch {
+      setState("failed");
+    }
+  }
+
+  return (
+    <button
+      onClick={run}
+      disabled={state === "working"}
+      className="rounded-lg border border-black/15 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-white/20 dark:text-zinc-300 dark:hover:bg-zinc-900"
+    >
+      {state === "working" && "Preparing…"}
+      {state === "idle" && "Download PDF"}
+      {state === "failed" && "Download failed — retry"}
+    </button>
+  );
+}
+
 export function ResultPanels({
   letter,
   cv,
+  analysis,
 }: {
   letter: CoverLetter | null;
   cv: AdaptedCv | null;
+  analysis: OfferAnalysis | null;
 }) {
   const [tab, setTab] = useState<Tab>("letter");
 
@@ -61,13 +90,19 @@ export function ResultPanels({
 
   return (
     <section className="rounded-xl border border-black/10 bg-white dark:border-white/15 dark:bg-zinc-950">
-      <div className="flex gap-1 border-b border-black/10 p-2 dark:border-white/15">
-        <button className={tabClass(tab === "letter")} onClick={() => setTab("letter")}>
-          Cover letter {letter ? "" : "·"}
-        </button>
-        <button className={tabClass(tab === "cv")} onClick={() => setTab("cv")}>
-          Adapted CV {cv ? "" : "·"}
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 p-2 dark:border-white/15">
+        <div className="flex gap-1">
+          <button className={tabClass(tab === "letter")} onClick={() => setTab("letter")}>
+            Cover letter
+          </button>
+          <button className={tabClass(tab === "cv")} onClick={() => setTab("cv")}>
+            Adapted CV
+          </button>
+        </div>
+        {tab === "letter" && letter && (
+          <DownloadButton onClick={() => downloadLetter(letter, analysis)} />
+        )}
+        {tab === "cv" && cv && <DownloadButton onClick={() => downloadCv(cv, analysis)} />}
       </div>
 
       <div className="p-5">
@@ -108,7 +143,10 @@ export function ResultPanels({
                 </p>
                 <ol className="flex flex-col gap-3">
                   {cv.projects.map((project, index) => (
-                    <li key={index} className="border-l-2 border-zinc-200 pl-3 dark:border-zinc-800">
+                    <li
+                      key={index}
+                      className="border-l-2 border-zinc-200 pl-3 dark:border-zinc-800"
+                    >
                       <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                         {project.title}
                       </p>

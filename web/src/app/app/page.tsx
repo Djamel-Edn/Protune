@@ -219,7 +219,7 @@ export default function AppPage() {
         )}
 
         {analysis && <AnalysisSummary analysis={analysis} />}
-        {(letter || adapted) && <ResultPanels letter={letter} cv={adapted} />}
+        {(letter || adapted) && <ResultPanels letter={letter} cv={adapted} analysis={analysis} />}
       </main>
     </div>
   );
