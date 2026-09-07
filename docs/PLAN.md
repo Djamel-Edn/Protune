@@ -204,6 +204,17 @@ Safeguards, from lightest to strictest:
 4. **Bounded inputs**: PDF ≤ 4 MB (Vercel caps request bodies at 4.5 MB), posting truncated to 4000 characters (as in the n8n prototype)
 5. No automatic client-side retry on `QUOTA_EXCEEDED`
 
+Both counters live in Upstash rather than in memory: each serverless invocation may be a
+fresh process, so an in-process counter would reset constantly. When Upstash is not
+configured — local development, CI — the limiter turns itself off and reports
+`enforced: false` rather than pretending to count. If Upstash is configured but
+unreachable, the request is allowed through: losing a counter must not take the demo down
+with it.
+
+IP addresses are never stored, only `sha256(salt + ip)`. The salt is what makes that
+worth anything: four billion IPv4 addresses is nothing to brute-force against an unsalted
+hash.
+
 ---
 
 ## 8. What carries over from n8n
@@ -342,7 +353,7 @@ CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next bu
 | ~~3~~ | ~~the three Gemini calls ported from n8n~~ ✅ | Full pipeline verified against the live API in 16.4 s |
 | ~~4~~ | ~~SSE + full frontend flow~~ ✅ | Driven end to end in a browser: 19.3 s, four stages streamed |
 | ~~5~~ | ~~PDF export~~ ✅ | Verified by inflating a generated PDF: accents intact, 1902 characters |
-| 6 | Landing + pre-generated example + rate limiting | **The public demo is presentable** |
+| ~~6~~ | ~~Landing + pre-generated example + rate limiting~~ ✅ | Needs an Upstash account to enforce; degrades to unlimited without one |
 | 7 | README, demo video, polish | Portfolio-ready |
 
 Milestone 1 deploys **before** any feature exists. That is what prevents discovering infrastructure problems on the last day.

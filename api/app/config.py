@@ -23,8 +23,25 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "models/gemini-flash-lite-latest"
 
+    # Per-visitor allowance, and a ceiling for everyone combined. The Gemini
+    # free tier allows 1000 requests a day and one generation costs three, so
+    # the global cap sits below the ~330 that implies.
     demo_daily_limit: int = 3
+    demo_global_daily_limit: int = 250
     ip_hash_salt: str = "change-me"
+
+    upstash_redis_rest_url: str = ""
+    upstash_redis_rest_token: str = ""
+
+    @property
+    def rate_limiting_enabled(self) -> bool:
+        """Without Upstash the limiter cannot be trusted.
+
+        Each serverless invocation may be a fresh process, so an in-memory
+        counter would reset constantly. Rather than pretend, the limiter turns
+        itself off and says so.
+        """
+        return bool(self.upstash_redis_rest_url and self.upstash_redis_rest_token)
 
     @model_validator(mode="before")
     @classmethod

@@ -100,7 +100,7 @@ The app runs on `http://localhost:3000`, the API on `http://localhost:8000` (aut
 - [x] **3** — Gemini pipeline: analyse → letter → CV
 - [x] **4** — SSE streaming and full frontend flow
 - [x] **5** — PDF export
-- [ ] **6** — Landing page and rate-limited public demo
+- [x] **6** — Landing page and rate-limited public demo
 - [ ] **7** — Polish, final README, demo video
 - [ ] *Later* — accounts, application tracker, job search with AI scoring
 

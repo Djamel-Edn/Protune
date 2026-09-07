@@ -15,13 +15,14 @@ import time
 from collections.abc import AsyncIterator
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.config import Settings, SettingsDep
 from app.errors import ProtuneError
 from app.schemas.generation import GenerateRequest
 from app.services.gemini import GeminiClient
+from app.services.rate_limit import client_ip, consume
 from app.services.scraper import fetch_posting
 
 logger = logging.getLogger(__name__)
@@ -85,9 +86,15 @@ async def _run(request: GenerateRequest, settings: Settings) -> AsyncIterator[st
 
 
 @router.post("/generate")
-async def generate(request: GenerateRequest, settings: SettingsDep) -> StreamingResponse:
+async def generate(
+    payload: GenerateRequest, request: Request, settings: SettingsDep
+) -> StreamingResponse:
+    # Charged before the stream opens, so an exhausted quota is a plain 429
+    # the client can read, not an error event buried in a 200 response.
+    await consume(client_ip(dict(request.headers)), settings)
+
     return StreamingResponse(
-        _run(request, settings),
+        _run(payload, settings),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache, no-transform",
