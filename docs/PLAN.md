@@ -224,7 +224,7 @@ repository. The free Hobby plan requires no credit card.
 | Project | Root Directory | Notes |
 |---|---|---|
 | `protune` (web) | `web` | Next.js preset, detected automatically |
-| `protune-api` | `api` | FastAPI detected from `requirements.txt`; entrypoint declared as `tool.vercel.entrypoint` in `pyproject.toml` |
+| `protune-api` | `api` | FastAPI and dependencies both read from `pyproject.toml`; entrypoint declared as `tool.vercel.entrypoint` |
 
 > ⚠️ **Root Directory is not optional here.** This is a monorepo: left at the repository
 > root, Vercel finds no application, builds nothing, and every request returns
@@ -264,6 +264,19 @@ curl -sD - -o /dev/null https://<app>.vercel.app/ | head -3
 # 404 + X-Vercel-Error: NOT_FOUND     -> no deployment attached to that domain
 # 200                                 -> live
 ```
+
+**3. Framework Preset must be set explicitly.** With the preset left on *Other*, Vercel
+still runs `npm run build`, reports the deployment *Ready*, and then publishes only the
+static `public/` directory — the Next.js adapter never runs, so every route returns
+`404 NOT_FOUND` while `/window.svg` and the other files in `public/` return `200`. That
+asymmetry is the diagnostic: if assets serve but routes do not, the preset is wrong.
+
+**4. Vercel installs Python dependencies from `pyproject.toml`, not `requirements.txt`.**
+When a `pyproject.toml` with a `[project]` table is present, it becomes the dependency
+source. A `[project]` table without a `dependencies` list therefore installs nothing, and
+the function crashes at import with `FUNCTION_INVOCATION_FAILED`. Dependencies live in
+`pyproject.toml` for that reason — Docker and CI install from the same file, so the lists
+cannot drift.
 
 **3. A successful build is not a production deployment.** A production domain that returns
 `404 NOT_FOUND` while builds succeed means no deployment was ever promoted to production.

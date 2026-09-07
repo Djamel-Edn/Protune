@@ -5,7 +5,7 @@ FastAPI backend (Python 3.12).
 ```bash
 py -3.12 -m venv .venv
 .venv/Scripts/activate          # Linux/macOS: source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
@@ -18,6 +18,7 @@ Runs on `http://localhost:8000`. Interactive docs at `/docs`.
 | `app/routers/` | HTTP routes, mounted under `/api/v1` |
 | `app/services/` | Business logic — scraping, CV parsing, Gemini calls |
 | `app/prompts/` | Prompt templates, ported from the n8n prototype |
+| `pyproject.toml` | Dependencies — the single source of truth, installed by Vercel, Docker and CI alike |
 
 ## Checks
 
@@ -28,7 +29,7 @@ ruff check . && ruff format --check . && pytest -q
 ## Deployment
 
 Deployed to **Vercel** as its own project, with **Root Directory** set to `api`.
-Vercel detects FastAPI from `requirements.txt` and loads the handler declared by
+Vercel detects FastAPI from `pyproject.toml` and loads the handler declared by
 `tool.vercel.entrypoint` in `pyproject.toml` (`app.main:app`).
 
 Environment variables to set in the Vercel dashboard:

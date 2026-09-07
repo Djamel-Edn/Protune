@@ -4,9 +4,34 @@ version = "0.1.0"
 description = "Protune API — CV tailoring and cover letter generation"
 requires-python = ">=3.12"
 
+# Single source of truth for runtime dependencies.
+# Vercel installs from this list; a requirements.txt alongside it would be ignored.
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "pydantic==2.10.4",
+    "pydantic-settings==2.7.0",
+    "python-multipart==0.0.20",
+    "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.0",
+    "ruff==0.8.4",
+]
+
 # Vercel loads this module:variable pair as the serverless handler.
 [tool.vercel]
 entrypoint = "app.main:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
 
 [tool.ruff]
 line-length = 100

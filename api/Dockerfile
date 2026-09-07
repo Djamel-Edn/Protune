@@ -6,11 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Dependencies first, so code changes do not invalidate the pip layer.
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
+# Dependencies are declared in pyproject.toml, which is also what Vercel installs from.
+COPY pyproject.toml .
 COPY app ./app
+RUN pip install --no-cache-dir .
 
 # Run as a non-root user.
 RUN useradd --create-home --uid 1000 appuser && chown -R appuser:appuser /app

@@ -80,7 +80,7 @@ cp .env.example .env   # then fill in GEMINI_API_KEY
 ```bash
 # API
 cd api && py -3.12 -m venv .venv && .venv/Scripts/activate
-pip install -r requirements.txt
+pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
