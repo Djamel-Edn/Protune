@@ -29,5 +29,10 @@ first — plain `tsc` fails on a fresh checkout.
 
 ## Deployment
 
-Deployed to Vercel with **Root Directory** set to `web`. Required environment variable:
-`NEXT_PUBLIC_API_URL` pointing at the deployed API.
+Deployed to **Vercel** with **Root Directory** set to `web`.
+
+> ⚠️ Leaving Root Directory at the repository root makes Vercel build nothing and serve
+> `404 NOT_FOUND` on every route — the repository is a monorepo, and there is no
+> application at its root.
+
+Required environment variable: `NEXT_PUBLIC_API_URL`, pointing at the deployed API.

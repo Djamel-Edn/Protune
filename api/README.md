@@ -27,10 +27,27 @@ ruff check . && ruff format --check . && pytest -q
 
 ## Deployment
 
-Fly.io, from the `Dockerfile`. See `fly.toml`.
+Deployed to **Vercel** as its own project, with **Root Directory** set to `api`.
+Vercel detects FastAPI from `requirements.txt` and loads the handler declared by
+`tool.vercel.entrypoint` in `pyproject.toml` (`app.main:app`).
+
+Environment variables to set in the Vercel dashboard:
+
+| Variable | Value |
+|---|---|
+| `GEMINI_API_KEY` | from Google AI Studio |
+| `CORS_ORIGINS` | the deployed web URL, e.g. `https://protune-eight.vercel.app` |
+
+Constraints inherited from the platform:
+
+- request bodies are capped at **4.5 MB**, so CV uploads are limited to 4 MB
+- functions may run for up to **300 s** on the free plan — ample for a 20–30 s pipeline
+
+### Container alternative
+
+`Dockerfile` and `fly.toml` are kept so the API can run on any container host without
+changes. Fly.io itself requires a credit card, so it is not the default target.
 
 ```bash
-fly launch --no-deploy --copy-config    # first time only
-fly secrets set GEMINI_API_KEY=...
-fly deploy
+docker build -t protune-api . && docker run -p 8000:8000 protune-api
 ```

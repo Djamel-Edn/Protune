@@ -60,7 +60,7 @@ Job digests, application follow-ups and internal notifications stay in n8n. The 
 | Layer | Choice |
 |---|---|
 | Frontend | Next.js 16 (App Router, TypeScript, Tailwind 4) — Vercel |
-| API | FastAPI, Python 3.12 — Fly.io (Docker) |
+| API | FastAPI, Python 3.12 — Vercel (Python runtime) |
 | LLM | Google Gemini (`gemini-flash-lite-latest`) |
 | Data | Supabase (Postgres + Storage) |
 | Quotas | Upstash Redis |

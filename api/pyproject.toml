@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "Protune API — CV tailoring and cover letter generation"
 requires-python = ">=3.12"
 
+# Vercel loads this module:variable pair as the serverless handler.
+[tool.vercel]
+entrypoint = "app.main:app"
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"

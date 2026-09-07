@@ -84,7 +84,7 @@ You paste a posting (URL or text), supply your CV once, and get back:
 | Database | **Supabase** (Postgres + Storage) | Already provisioned for the n8n project; Auth ready for phase 2 |
 | Demo quotas | **Upstash Redis** | Per-IP counters over a REST API — no persistent connection to keep alive |
 | PDF export | **@react-pdf/renderer** (client-side) | No headless browser to host; deterministic output |
-| Hosting | **Vercel** (web) + **Fly.io** (api, Docker) | See §9 |
+| Hosting | **Vercel** for both web and API | Free Hobby plan, no credit card, no cold start. See §9 |
 
 > ⚠️ **Python 3.12, not 3.14.** The machine defaults to 3.14, but parts of the PDF/AI ecosystem still lag behind it. The virtualenv is created explicitly with `py -3.12`.
 
@@ -117,7 +117,7 @@ Base path: `/api/v1`
 |---|---|---|---|
 | `GET` | `/health` | — | `{status, version}` |
 | `GET` | `/demo/quota` | — | `{remaining, limit, resets_at}` |
-| `POST` | `/cv/parse` | `multipart` (PDF ≤ 5 MB) | `{raw_text, parsed: {headline, summary, experience[], projects[], skills[], education[]}}` |
+| `POST` | `/cv/parse` | `multipart` (PDF ≤ 4 MB) | `{raw_text, parsed: {headline, summary, experience[], projects[], skills[], education[]}}` |
 | `POST` | `/generate` | `{cv, offer_url?, offer_text?}` | **SSE** |
 
 ### SSE events emitted by `/generate`
@@ -188,7 +188,7 @@ Safeguards, from lightest to strictest:
 1. **Hard-coded pre-generated example** on the landing page → zero API calls for a curious visitor
 2. **3 generations / IP / day** (Upstash key `demo:{ip_hash}:{YYYY-MM-DD}`)
 3. **Global daily ceiling** (`demo:global:{date}`) → past it, the app falls back to the example with an honest message: *demo quota reached, try again tomorrow*
-4. **Bounded inputs**: PDF ≤ 5 MB, posting truncated to 4000 characters (as in the n8n prototype)
+4. **Bounded inputs**: PDF ≤ 4 MB (Vercel caps request bodies at 4.5 MB), posting truncated to 4000 characters (as in the n8n prototype)
 5. No automatic client-side retry on `QUOTA_EXCEEDED`
 
 ---
@@ -218,14 +218,37 @@ Known pitfalls, already paid for once:
 
 ## 9. Deployment
 
-| | Target | Note |
+Both applications deploy to **Vercel**, as two separate projects pointing at the same
+repository. The free Hobby plan requires no credit card.
+
+| Project | Root Directory | Notes |
 |---|---|---|
-| `web/` | **Vercel** | Instant builds, no cold start |
-| `api/` | **Fly.io** (Docker, scale-to-zero) | ~1–3 s wake-up; the frontend shows the pre-generated example meanwhile |
+| `protune` (web) | `web` | Next.js preset, detected automatically |
+| `protune-api` | `api` | FastAPI detected from `requirements.txt`; entrypoint declared as `tool.vercel.entrypoint` in `pyproject.toml` |
 
-> Free tiers (Vercel Hobby, Fly.io, Upstash, Supabase) **change often**. Actual limits will be verified at deployment time rather than trusted from this document — treat this table as intent, not as a guarantee.
+> ⚠️ **Root Directory is not optional here.** This is a monorepo: left at the repository
+> root, Vercel finds no application, builds nothing, and every request returns
+> `404 NOT_FOUND`. Set it per project in *Settings → General → Root Directory*.
 
-Fallbacks if Fly.io does not work out: **Hugging Face Spaces** (Docker, free, and a good signal for an AI profile) or **Koyeb**.
+Environment variables to set in the dashboard:
+
+| Project | Variable | Value |
+|---|---|---|
+| web | `NEXT_PUBLIC_API_URL` | the deployed API URL |
+| api | `GEMINI_API_KEY` | from Google AI Studio |
+| api | `CORS_ORIGINS` | the deployed web URL |
+
+### Why Vercel rather than a container host
+
+| Option | Verdict |
+|---|---|
+| **Vercel Python Functions** | ✅ Chosen. Hobby allows 300 s max duration and 2 GB memory, streaming is enabled by default, and Python 3.12 is the default runtime. Our pipeline needs 20–30 s, so there is ample headroom. |
+| Fly.io | ❌ Requires a credit card before any deploy, including for a 256 MB machine. |
+| Hugging Face Spaces | ❌ Docker Spaces now require a paid PRO plan; only Static Spaces remain free. |
+| Render | 🟡 Free without a card, but free services sleep after 15 minutes and take ~1 minute to wake — unacceptable on a portfolio demo. Kept as a fallback. |
+
+The `Dockerfile` and `fly.toml` stay in the repository. They work locally, they demonstrate
+containerisation, and they mean the API can move to any container host without a rewrite.
 
 CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next build` for `web/`.
 
