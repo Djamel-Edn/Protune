@@ -310,7 +310,7 @@ CI: GitHub Actions — `ruff` + `pytest` for `api/`, `tsc` + `eslint` + `next bu
 
 | # | Deliverable | Visible outcome |
 |---|---|---|
-| 1 | Skeleton + `/health` + **end-to-end deployment** | Two live URLs — empty, but real |
+| ~~1~~ | ~~Skeleton + `/health` + end-to-end deployment~~ ✅ | [protune-eight.vercel.app](https://protune-eight.vercel.app) · [protuneapi.vercel.app](https://protuneapi.vercel.app/docs) |
 | 2 | `cv/parse` — PDF → structured JSON | Unit test against a real CV |
 | 3 | `generate` — the three Gemini calls ported from n8n | A complete JSON from the command line |
 | 4 | SSE + full frontend flow | The product works locally |

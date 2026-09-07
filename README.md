@@ -8,7 +8,9 @@ AI-powered job analysis, CV rewriting and cover letter drafting — no sign-up r
 
 `Next.js` · `FastAPI` · `Gemini` · `Supabase`
 
-🚧 **Under construction** — see the [roadmap](#roadmap). Public demo ships at milestone 6.
+**[Live app](https://protune-eight.vercel.app)** · **[API](https://protuneapi.vercel.app/docs)**
+
+🚧 **Under construction** — see the [roadmap](#roadmap). The generator ships at milestone 6.
 
 </div>
 
@@ -93,7 +95,7 @@ The app runs on `http://localhost:3000`, the API on `http://localhost:8000` (aut
 
 ## Roadmap
 
-- [ ] **1** — Skeleton, `/health`, end-to-end deployment
+- [x] **1** — Skeleton, `/health`, end-to-end deployment
 - [ ] **2** — CV parsing (PDF → structured JSON)
 - [ ] **3** — Gemini pipeline: analyse → letter → CV
 - [ ] **4** — SSE streaming and full frontend flow
